@@ -2,6 +2,7 @@ from tkinter import Tk, Label, Button, Entry, messagebox
 from tkinter.messagebox import askyesno
 import sqlite3
 import PySimpleGUI as sg
+import re
 
 
 class LoginWindow:
@@ -28,6 +29,9 @@ class LoginWindow:
     def show(self):
         self.root.mainloop()
 
+    def is_valid(self, text):
+        return  re.match("[A-Za-z0-9_]+$", text)
+
     def register(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
@@ -41,6 +45,10 @@ class LoginWindow:
 
         if not username or not password:
             messagebox.showerror(title="Erro", message="O nome de usuário e senha são obrigatórios")
+
+        if not self.is_valid(username):
+            messagebox.showerror(title="Erro", message="Nome de usuário não deve conter caracteres especiais")
+            return
 
         cursor.execute("INSERT INTO Usuarios (username, password) VALUES (?, ?)", (username, password))
         conexao.commit()
