@@ -122,7 +122,7 @@ def consumir_insumo():
 
 
 def visualizar_insumo():
-    if len(nome_insumo.get()) < 2:
+    if len(nome_insumo.get()) < 2 and len(Tipo_insumo.get()) < 2:
         # exibir uma mensagem -> nome do insumo inválido
         # deletar tudo da caixa de texto
         caixa_texto.delete("1.0", END)
@@ -133,24 +133,35 @@ def visualizar_insumo():
         return
 
     # Pesquisar pelo insumo
-    cursor.execute(f"SELECT * FROM Estoque WHERE Produto='{nome_insumo.get().capitalize()}'")
+    query = "SELECT * FROM Estoque"
+    conditions = []
+    if nome_insumo.get().strip():
+        conditions.append(f"Produto='{nome_insumo.get().strip().capitalize()}'")
+    if Tipo_insumo.get().strip():
+        conditions.append(f"Tipo='{Tipo_insumo.get().strip().upper()}'")
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    cursor.execute(query)
     valores = cursor.fetchall()
     texto = ""
-    for id_produto, nome, quantidade, validade, Tipo in valores:
+    for id_produto, nome, quantidade, entrada, Tipo in valores:
         texto = texto + f'''
         -----
         Produto: {nome}
         Quantidade: {quantidade}
-        Validade: {validade}
+        Entrada: {entrada}
         Tipo: {Tipo}
         '''
+        
     # deletar tudo da caixa de texto
     caixa_texto.delete("1.0", END)
 
     # escrever na caixa de texto
     caixa_texto.insert("1.0", texto)
-
-
+    
+    
 def exportar_excel():
     valores = cursor.execute("""
     SELECT * FROM Estoque 
